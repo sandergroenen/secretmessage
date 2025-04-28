@@ -1,0 +1,45 @@
+{
+    "git.autofetch": true,
+    "editor.suggestSelection": "first",
+    "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
+    "files.autoSave": "afterDelay",
+    "gitlens.codeLens.enabled": false,
+    "gitlens.defaultDateFormat": "MMMM Do, YYYY HH:MM",
+    "gitlens.defaultTimeFormat": "HH:MM",
+    "cSpell.userWords": [
+        "firestore",
+        "simbuka"
+    ],
+    "search.useIgnoreFiles": false,
+    "explorer.confirmDelete": false,
+    "workbench.iconTheme": "material-icon-theme",
+    "git.confirmSync": false,
+    "window.zoomLevel": 1,
+    "git.untrackedChanges": "separate",
+    "terminal.integrated.scrollback": 10000,
+    "redhat.telemetry.enabled": true,
+    "explorer.compactFolders": false,
+    "editor.renderWhitespace": "all",
+    "terminal.integrated.allowChords": false,
+    "window.reopenFolders": "all",
+    "diffEditor.ignoreTrimWhitespace": false,
+    "githubPullRequests.pullBranch": "never",
+    "window.customTitleBarVisibility": "auto",
+    "better-phpunit.docker.enable": true,
+    "better-phpunit.docker.command": "docker compose exec app php",
+    "better-phpunit.docker.paths": {
+       "/home/sander/CascadeProjects/secretmessage": "/var/www"
+    },
+    "better-phpunit.suiteSuffix": "/var/www/tests",
+    "better-phpunit.phpunitBinary": "/var/www/vendor/bin/phpunit",
+    "workbench.colorTheme": "Visual Studio Dark",
+    "Larave>l.basePath": "/var/www",
+    "artisan.docker.enabled": true,
+    "artisan.docker.command": "docker compose exec app",
+    "php.executablePath": "docker-compose exec app php",
+    "php.debug.executablePath": "docker-compose exec app php",
+    "editor.defaultFormatter": "bmewburn.vscode-intelephense-client",
+    "cSpell.words": [
+        "ciphertext"
+    ],
+}
