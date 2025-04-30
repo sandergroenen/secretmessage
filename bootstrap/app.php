@@ -22,7 +22,9 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
-    })
+    })->withEvents(discover: [
+        __DIR__.'/../app/Domain/Listeners',
+    ])
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();

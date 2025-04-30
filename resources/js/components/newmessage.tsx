@@ -16,6 +16,7 @@ export default function NewMessage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [loadingUsers, setLoadingUsers] = useState(true);
+  const [messageId, setMessageId] = useState('');
   
   // Fetch users on component mount
   useEffect(() => {
@@ -57,22 +58,27 @@ export default function NewMessage() {
       expiryDate.setSeconds(expiryDate.getSeconds() + parseInt(expirySeconds));
       
       // Send the message to the API
-      await axios.post('/messages', {
+      const response = await axios.post('/message', {
         recipient_id: recipientId,
         content: message,
-        expires_at: expiryDate.toISOString(),
+        expires_at: expiryDate.toLocaleString('sv-SE').replace(' ', 'T'),
       });
+      
+      // Get the message ID from the response
+      const messageId = response.data.data.id;
       
       // Reset form on success
       setRecipientId('');
       setMessage('');
       setExpirySeconds('10');
       setSuccess(true);
+      setMessageId(messageId);
       
-      // Clear success message after 5 seconds
+      // Clear success message after 10 seconds
       setTimeout(() => {
         setSuccess(false);
-      }, 5000);
+        setMessageId('');
+      }, 10000);
     } catch (error) {
       console.error('Error sending message:', error);
       setError('Failed to send message. The recipient may not have generated encryption keys yet.');
@@ -87,7 +93,10 @@ export default function NewMessage() {
       
       {success && (
         <div className="mb-4 p-3 bg-green-100 text-green-800 rounded-md">
-          Message sent successfully!
+          <p>Message sent successfully!</p>
+          {messageId && (
+            <p className="mt-1 font-mono text-sm">Message ID: {messageId}</p>
+          )}
         </div>
       )}
       

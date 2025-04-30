@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Events\MessageDecryptedAndReceivedEvent;
+use App\Domain\Events\MessageExpiredEvent;
 use App\Models\Message;
 use App\Models\User;
 use App\Services\KeyManagementService;
@@ -48,21 +50,6 @@ class MessageController extends Controller
     }
 
     /**
-     * Get messages for the authenticated user
-     */
-    public function getMessages(Request $request)
-    {
-        $user = Auth::user();
-        $sent = $request->query('sent', false);
-        
-        $messages = $this->messageBrokerService->getMessagesForUser($user->id, $sent);
-        
-        return response()->json([
-            'messages' => $messages,
-        ]);
-    }
-
-    /**
      * Send a new message
      */
     public function sendMessage(Request $request)
@@ -82,15 +69,71 @@ class MessageController extends Controller
             $validated['expires_at']
         );
         
-        if (!$message) {
-            return response()->json([
-                'message' => 'Failed to send message. Recipient may not have a public key registered.',
-            ], 400);
-        }
-        
         return response()->json([
             'message' => 'Message sent successfully',
             'data' => $message,
+        ]);
+    }
+
+    /**
+     * Get a message by partial ID
+     */
+    public function getMessage(Request $request, $partialId)
+    {
+        // Ensure the partial ID is at least 5 characters long
+        if (strlen($partialId) < 5) {
+            return response()->json([
+                'message' => null,
+                'error' => 'Message ID must be at least 5 characters long',
+            ], 400);
+        }
+        
+        $user = Auth::user();
+        
+        // Find messages where the ID starts with the provided partial ID
+        // and the user is the recipient
+        $message = Message::where('id', 'like', $partialId . '%')
+            ->where('recipient_id', $user->id)
+            ->first();
+        
+        if (!$message) {
+            return response()->json([
+                'message' => null,
+                'error' => 'No message found with that ID',
+            ], 404);
+        }
+        
+        // Load the sender relationship
+        $message->load('sender:id,name,email');
+        
+        return response()->json([
+            'message' => $message,
+        ]);
+    }
+
+    /**
+     * Check if a message exists by exact ID and return only the message ID
+     */
+    public function checkMessageId(Request $request, $messageId)
+    {
+        $user = Auth::user();
+        
+        // Find the message with the exact ID provided
+        // and where the user is the recipient
+        $message = Message::where('id', $messageId)
+            ->where('recipient_id', $user->id)
+            ->first();
+        
+        if (!$message) {
+            return response()->json([
+                'message_id' => null,
+                'error' => 'No message found with that ID',
+            ], 404);
+        }
+        
+        // Only return the message ID
+        return response()->json([
+            'message_id' => $message->id,
         ]);
     }
 
@@ -121,21 +164,36 @@ class MessageController extends Controller
             'id' => 'required|string',
             'private_key' => 'required|string',
         ]);
-        
-        $decryptedContent = $this->messageBrokerService->decryptMessage(
+
+        // Get the message to create a DTO and dispatch the event
+        /**@var Message $message */
+        $message = Message::where('id', $validated['id'])->firstOrFail();        
+        $message->deleteIfExpired();
+
+        // Decrypt the message content
+        $messageDto = $this->messageBrokerService->decryptMessage(
             $validated['id'],
             $validated['private_key']
         );
         
-        if ($decryptedContent === null) {
-            return response()->json([
-                'message' => 'Failed to decrypt message',
-            ], 400);
-        }
+        // Dispatch the event
+        event(new MessageDecryptedAndReceivedEvent($messageDto));
         
         return response()->json([
             'message' => 'Message decrypted successfully',
-            'content' => $decryptedContent,
+            'content' => $messageDto->content,
+        ]);
+    }
+
+    /**
+     * Get a list of users (for recipient selection)
+     */
+    public function getLoggedInUserId()
+    {
+        $currentUser = Auth::user();
+        
+        return response()->json([
+            'id' => $currentUser->id,
         ]);
     }
 
@@ -144,11 +202,27 @@ class MessageController extends Controller
      */
     public function getUsers()
     {
-        $currentUser = Auth::user();
-        $users = User::where('id', '!=', $currentUser->id)->get(['id', 'name', 'email']);
+        $users = User::where('id', '!=', Auth::user()->id)->get(['id', 'name', 'email']);
         
         return response()->json([
-            'users' => $users,
+            'users' => $users->toArray(),
+        ]);
+    }
+    
+    /**
+     * Handle a message that has expired in the frontend
+     */
+    public function handleExpiredMessage(Request $request)
+    {
+        $validated = $request->validate([
+            'id' => 'required|string',
+        ]);
+        
+        // Fire the MessageExpiredEvent
+        event(new MessageExpiredEvent($validated['id']));
+        
+        return response()->json([
+            'message' => 'Message expiration event triggered successfully',
         ]);
     }
 }

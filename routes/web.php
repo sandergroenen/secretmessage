@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-
+//test
 Route::get('/', function () {
     return redirect("/login");
 })->name('home');
@@ -12,11 +12,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [App\Http\Controllers\MessageController::class, 'index'])->name('dashboard');
     
     // Message routes
-    Route::prefix('messages')->group(function () {
-        Route::get('/', [App\Http\Controllers\MessageController::class, 'getMessages']);
+    Route::prefix('message')->group(function () {
+        Route::get('/check/{id}', [App\Http\Controllers\MessageController::class, 'checkMessageId']);
         Route::post('/', [App\Http\Controllers\MessageController::class, 'sendMessage']);
-        Route::post('/{id}/read', [App\Http\Controllers\MessageController::class, 'markAsRead']);
+        Route::post('/{id}/markasread', [App\Http\Controllers\MessageController::class, 'markAsRead']);
         Route::post('/decrypt', [App\Http\Controllers\MessageController::class, 'decryptMessage']);
+        Route::post('/expired', [App\Http\Controllers\MessageController::class, 'handleExpiredMessage']);
     });
     
     // Key management routes
@@ -25,6 +26,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
     
     // User routes for recipient selection
+    Route::get('/user', [App\Http\Controllers\MessageController::class, 'getLoggedInUserId']);
     Route::get('/users', [App\Http\Controllers\MessageController::class, 'getUsers']);
 });
 

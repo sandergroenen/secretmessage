@@ -42,4 +42,7 @@
     "cSpell.words": [
         "ciphertext"
     ],
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
 }

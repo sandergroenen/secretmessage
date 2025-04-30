@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Domain\Events\MessageExpiredEvent;
+use App\Domain\Listeners\ExpiredMessageListener;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
@@ -24,8 +26,8 @@ class AppServiceProvider extends ServiceProvider
         Vite::prefetch(concurrency: 3);
         //register event handler for all quote events
         Event::listen(
-            MessageSentEvent::class,
-            MessageBroker::class
+            MessageExpiredEvent::class,
+            ExpiredMessageListener::class
         );
     }
 }

@@ -6,10 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Support\Str;
 use Carbon\Carbon;
-use App\Events\MessageRead;
-use App\Events\MessageExpired;
+use App\Domain\Events\MessageExpiredEvent;
+use App\Domain\Dto\MessageDto;
 
 class Message extends Model
 {
@@ -98,7 +97,6 @@ class Message extends Model
             $this->read_at = Carbon::now();
             $this->save();
             
-            event(new MessageRead($this));
         }
     }
 
@@ -109,9 +107,7 @@ class Message extends Model
      */
     public function scheduleForDeletion(): void
     {
-        // This could dispatch a job to delete the message after a short delay
-        // to ensure the user has time to read it
-        event(new MessageExpired($this));
+        event(new MessageExpiredEvent($this->id));
     }
 
     /**
@@ -160,6 +156,25 @@ class Message extends Model
     public function isReadableBy(User $user): bool
     {
         return $user->id === $this->recipient_id && !$this->isExpired();
+    }
+    
+    /**
+     * Prepare the message for decryption and create a MessageDto
+     *
+     * @param string $decryptedContent The decrypted content of the message
+     * @return \App\Domain\Dto\MessageDto
+     */
+    public function deleteIfExpired(): void
+    {
+        // Check if the message is deleted or expired
+        $isDeleted = $this->deleted_at !== null;
+        $isExpired = $this->isExpired();
+        
+        // If message is expired but not deleted, schedule it for deletion
+        if ($isExpired && !$isDeleted) {
+            $this->scheduleForDeletion();
+        }            
+      
     }
 
     /**

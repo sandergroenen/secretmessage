@@ -44,7 +44,7 @@ fi
 docker compose up -d --force-recreate
 
 echo "Waiting for containers to start..."
-sleep 5
+sleep 8
 
 # Verify .env file is visible in container
 echo "Verifying .env file in container..."
@@ -83,7 +83,7 @@ docker compose exec -T app npm install
 
 # Start queue worker in the background
 echo "Starting queue worker in the background..."
-docker compose exec -T app bash -c "cd /var/www && php artisan queue:work --tries=3 --timeout=90 &"
+docker compose exec -T app bash -c 'XDEBUG_CONFIG="idekey=VSCODE"   && cd /var/www && php artisan queue:work --tries=3 --timeout=90 &'
 
 #Start reverb
 echo "Starting reverb server in the background..."
@@ -91,7 +91,8 @@ docker compose exec -T app bash -c "cd /var/www && php artisan reverb:start --de
 
 # Start Vite development server in the background within the app container
 echo "Starting Vite development server in the background..."
-docker compose exec -T app bash -c "cd /var/www && npm run dev &"
+
+docker compose exec -T app bash -c "cd /var/www && nohup npm run dev > /var/www/storage/logs/vite.log 2>&1 &"
 
 echo "Laravel application is now running at http://localhost"
 echo "Vite development server is running at http://localhost:5173"

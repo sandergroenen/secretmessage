@@ -1,6 +1,6 @@
 import { Head } from '@inertiajs/react';
 import { type BreadcrumbItem } from '@/types';
-import Inbox from '@/components/inbox';
+import ReadMessage from '@/components/readmessage';
 import Message from '@/components/message';
 import NewMessage from '@/components/newmessage';
 import AppLayout from '@/layouts/app-layout';
@@ -19,8 +19,7 @@ interface DashboardProps {
 }
 
 interface Message {
-    id: number;
-    identifier: string;
+    id: string;
     sender_id: number;
     recipient_id: number;
     content: string;
@@ -38,7 +37,6 @@ interface Message {
 }
 
 export default function Dashboard({ hasKeys }: DashboardProps) {
-    const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
     const [showKeyModal, setShowKeyModal] = useState(!hasKeys);
     const [privateKey, setPrivateKey] = useState('');
     const [publicKey, setPublicKey] = useState('');
@@ -62,10 +60,6 @@ export default function Dashboard({ hasKeys }: DashboardProps) {
         }
     };
     
-    // Handle message selection from Inbox
-    const handleSelectMessage = (message: Message) => {
-        setSelectedMessage(message);
-    };
     
     // Close the key modal
     const closeKeyModal = () => {
@@ -135,15 +129,15 @@ export default function Dashboard({ hasKeys }: DashboardProps) {
             )}
             
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-2">
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <Inbox onSelectMessage={handleSelectMessage} />
+                <div className="flex flex-1 flex-col md:flex-row gap-4 h-1/2">
+                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border flex-1 h-full">
+                        <ReadMessage />
                     </div>
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <Message selectedMessage={selectedMessage} />
+                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border flex-1 h-full">
+                        <Message />
                     </div>
                 </div>
-                <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
+                <div className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border flex-1 h-1/2">
                     <NewMessage />
                 </div>
             </div>
