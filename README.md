@@ -8,6 +8,7 @@ A secure messaging application that uses asymmetric RSA encryption and private c
 
 - Docker 20.10.13+ or Docker Desktop 3.4.0+ (Docker with docker compose v2 integrated)
 - Git
+- Ports 8080 (reverb websockets), 5173 (vite), 3306 (mysql), 80 (web/reverb) must be available before starting
 
 The project is set up to use Docker for all dependencies, so you don't need to install PHP, Composer, Node.js, or MySQL directly on your system.
 
@@ -146,14 +147,14 @@ The application uses Laravel's event system for handling message lifecycle event
 ## Running Static analysis and Tests
 - To run phpstan use the following command on your host:  
 ```bash
-docker compose exec -u appuser app bash -c 'XDEBUG_MODE=off cd /var/www && vendor/bin/phpstan --memory-limit=2G'
+docker compose exec -u appuser app bash -c 'cd /var/www && XDEBUG_MODE=off vendor/bin/phpstan --memory-limit=2G'
 ```
 - To run tests use the following command on your host: 
 ```bash
-docker compose exec -u appuser app bash -c 'XDEBUG_MODE=off cd /var/www && php artisan test'
+docker compose exec -u appuser app bash -c 'cd /var/www && XDEBUG_MODE=off php artisan test'
 ```
 The XDEBUG_MODE=off prevents xdebug connection error's in the cli.
-- The tests are also run on Github actions for CI/CD purposes. for setup see .github/workflows/tests.yml and for runs see  https://github.com/sandergroenen/secretmessage/actions
+- The tests are also run on Github actions for CI/CD purposes. for setup see .github/workflows/tests.yml (and lint.yml). For runs see  https://github.com/sandergroenen/secretmessage/actions
 ## License
 
 This project is licensed under the MIT License
