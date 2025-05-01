@@ -4,7 +4,7 @@ import ReadMessage from '@/components/readmessage';
 import Message from '@/components/message';
 import NewMessage from '@/components/newmessage';
 import AppLayout from '@/layouts/app-layout';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 
 const breadcrumbs: BreadcrumbItem[] = [

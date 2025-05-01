@@ -51,7 +51,7 @@ jobs:
         run: docker compose exec -T app php artisan migrate --force
 
       - name: Run PHPStan
-        run: docker compose exec -T app bash -c "cd /var/www && composer phpstan"
+        run: docker compose exec -T app bash -c "cd /var/www && vendor/bin/phpstan --memory-limit=2G"
 
       - name: Run tests
         run: docker compose exec -T app php artisan test
