@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Domain\Message\Repositories;
 
-use App\Domain\Dto\MessageDto;
-use App\Domain\Events\MessageExpiredEvent;
-use App\Models\Message;
-use App\Repositories\Interfaces\MessageRepositoryInterface;
+use App\Domain\Message\Dto\MessageDto;
+use App\Domain\Message\Models\Message;
+use App\Domain\Message\Repositories\Interfaces\MessageRepositoryInterface;
 
 class EloquentMessageRepository implements MessageRepositoryInterface
 {
@@ -138,14 +137,7 @@ class EloquentMessageRepository implements MessageRepositoryInterface
             return;
         }
         
-        // Check if the message is deleted or expired
-        $isDeleted = $message->deleted_at !== null;
-        $isExpired = $message->isExpired();
-        
-        // If message is expired but not deleted, schedule it for deletion
-        if ($isExpired && !$isDeleted) {
-            $this->scheduleMessageDeletion($message->id);
-        }
+      $message->deleteIfExpired();
     }
     
     /**
@@ -175,15 +167,4 @@ class EloquentMessageRepository implements MessageRepositoryInterface
         );
     }
 
-    /**
-     * Schedule a message for deletion
-     *
-     * @param string $messageId The message ID
-     * @return void
-     */
-    private function scheduleMessageDeletion(string $messageId): void
-    {
-        // Dispatch the MessageExpiredEvent to delete the message
-        event(new MessageExpiredEvent($messageId));
-    }
 }

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repositories\Interfaces;
+namespace App\Domain\Message\Repositories\Interfaces;
 
-use App\Domain\Dto\MessageDto;
+use App\Domain\Message\Dto\MessageDto;
 
 interface MessageRepositoryInterface
 {

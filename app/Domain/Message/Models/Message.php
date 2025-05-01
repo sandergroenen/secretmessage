@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Models;
+namespace App\Domain\Message\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Carbon\Carbon;
-use App\Domain\Events\MessageExpiredEvent;
-use App\Domain\Dto\MessageDto;
+use App\Domain\Message\Events\MessageExpiredEvent;
+use App\Domain\Message\Dto\MessageDto;
+use App\Models\User;
 
 class Message extends Model
 {
@@ -159,10 +160,9 @@ class Message extends Model
     }
     
     /**
-     * Prepare the message for decryption and create a MessageDto
+     * Delete the message if it is expired
      *
-     * @param string $decryptedContent The decrypted content of the message
-     * @return \App\Domain\Dto\MessageDto
+     * @return void
      */
     public function deleteIfExpired(): void
     {

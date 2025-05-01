@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Dto;
+namespace App\Domain\Message\Dto;
 
 //even though we have eloquent models which can do ->toArray method having a defined DTO model adds value by ensuring central place for type and attribute checking
 class MessageDto

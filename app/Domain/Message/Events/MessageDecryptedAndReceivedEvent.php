@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Domain\Events;
+namespace App\Domain\Message\Events;
 
-use App\Domain\Dto\MessageDto;
-use App\Domain\Events\Interfaces\MessageEventWithBroadCastInterface;
-use App\Models\Message;
+use App\Domain\Message\Dto\MessageDto;
+use App\Domain\Message\Events\Interfaces\MessageEventWithBroadCastInterface;
+use App\Domain\Message\Models\Message;
 use Carbon\Carbon;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;

@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Domain\Events\MessageExpiredEvent;
-use App\Domain\Listeners\ExpiredMessageListener;
+use App\Domain\Message\Events\MessageExpiredEvent;
+use App\Domain\Message\Listeners\ExpiredMessageListener;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;

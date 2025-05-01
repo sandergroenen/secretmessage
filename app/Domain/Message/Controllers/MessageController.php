@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Domain\Message\Controllers;
 
-use App\Domain\Events\MessageDecryptedAndReceivedEvent;
+use App\Domain\Message\Events\MessageDecryptedAndReceivedEvent;
 use App\Models\User;
-use App\Repositories\Interfaces\MessageRepositoryInterface;
-use App\Services\KeyManagementService;
-use App\Services\MessageBrokerService;
+use App\Domain\Message\Repositories\Interfaces\MessageRepositoryInterface;
+use App\Domain\Message\Services\KeyManagementService;
+use App\Domain\Message\Services\MessageBrokerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use App\Http\Controllers\Controller;
 
 class MessageController extends Controller
 {

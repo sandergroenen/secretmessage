@@ -36,12 +36,19 @@ export default function Message() {
     channel.listen('.MessageDecryptedAndReceived', (event: any) => {
       console.log('Received decrypted message event:', event);
       
+      // Reset expiration-related states when receiving a new message
+      setIsExpiring(false);
+      setIsExpired(false);
+      setContentReplaced(false);
+      
       // Set content directly from the event
       setContent(event.content);
       
       // Set expiration time if available
       if (event.expires_at) {
         setExpiresAt(event.expires_at);
+      } else {
+        setExpiresAt(null); // Explicitly reset if not available
       }
       
       // Store the message ID

@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace App\Domain\Message\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\User;
 
 class UserKey extends Model
 {

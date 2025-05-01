@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Services;
+namespace App\Domain\Message\Services;
 
 use App\Models\User;
-use App\Models\UserKey;
-use Illuminate\Support\Facades\Crypt;
+use App\Domain\Message\Models\UserKey;
 
 class KeyManagementService
 {

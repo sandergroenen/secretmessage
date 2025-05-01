@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Repositories\EloquentMessageRepository;
-use App\Repositories\Interfaces\MessageRepositoryInterface;
+use App\Domain\Message\Repositories\EloquentMessageRepository;
+use App\Domain\Message\Repositories\Interfaces\MessageRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider

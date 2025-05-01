@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Domain\Events;
+namespace App\Domain\Message\Events;
 
-use App\Domain\Events\Interfaces\MessageEventWithBroadCastInterface;
+use App\Domain\Message\Events\Interfaces\MessageEventWithBroadCastInterface;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class MessageExpiredEvent implements  MessageEventWithBroadCastInterface
+class MessageExpiredEvent implements MessageEventWithBroadCastInterface
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 

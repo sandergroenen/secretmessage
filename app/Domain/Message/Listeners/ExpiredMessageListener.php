@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Domain\Listeners;
+namespace App\Domain\Message\Listeners;
 
-use App\Domain\Events\MessageExpiredEvent;
+use App\Domain\Message\Events\MessageExpiredEvent;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Repositories\Interfaces\MessageRepositoryInterface;
+use App\Domain\Message\Repositories\Interfaces\MessageRepositoryInterface;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
 

@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Services;
+namespace App\Domain\Message\Services;
 
-use App\Domain\Dto\MessageDto;
-use App\Domain\Events\MessageSentEvent;
-use App\Domain\Events\MessageDecryptedAndReceivedEvent;
-use App\Models\Message;
+use App\Domain\Message\Dto\MessageDto;
+// This event doesn't seem to exist yet
+use App\Domain\Message\Events\MessageDecryptedAndReceivedEvent;
+use App\Domain\Message\Models\Message;
 use App\Models\User;
-use App\Repositories\Interfaces\MessageRepositoryInterface;
+use App\Domain\Message\Repositories\Interfaces\MessageRepositoryInterface;
 use Exception;
 
 class MessageBrokerService
@@ -73,7 +73,7 @@ class MessageBrokerService
      *
      * @param string $identifier The message identifier
      * @param string $privateKey The recipient's private key
-     * @return \App\Domain\Dto\MessageDto The decrypted message 
+     * @return \App\Domain\Message\Dto\MessageDto The decrypted message 
      */
     public function decryptMessage(string $identifier, string $privateKey): MessageDto
     {

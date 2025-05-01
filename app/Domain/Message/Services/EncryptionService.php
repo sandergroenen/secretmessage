@@ -1,5 +1,5 @@
 <?php
-namespace App\Services;
+namespace App\Domain\Message\Services;
 
 use phpseclib3\Crypt\RSA;
 
