@@ -3,14 +3,23 @@
 namespace App\Domain\Listeners;
 
 use App\Domain\Events\MessageExpiredEvent;
-use App\Models\Message;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Repositories\Interfaces\MessageRepositoryInterface;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
 
 class ExpiredMessageListener implements ShouldQueue
 {
     use InteractsWithQueue;
+    
+    /**
+     * Create a new listener instance.
+     *
+     * @param MessageRepositoryInterface $messageRepository
+     */
+    public function __construct(
+        protected MessageRepositoryInterface $messageRepository
+    ) {}
 
     /**
      * Handle the event.
@@ -20,8 +29,8 @@ class ExpiredMessageListener implements ShouldQueue
      */
     public function handle(MessageExpiredEvent $event): void
     {
-        // Retrieve the message by ID
-        $message = Message::find($event->messageId);
+        // Retrieve the message by ID using the repository
+        $message = $this->messageRepository->findMessageById($event->messageId);
 
         // Explicitly check for null
         if ($message === null) {
@@ -30,6 +39,6 @@ class ExpiredMessageListener implements ShouldQueue
         }
 
         Log::info('ExpiredMessageListener: Message is expired, soft deleting message ID: ' . $event->messageId);
-        $message->delete();
+        $this->messageRepository->deleteMessage($event->messageId);
     }
 }

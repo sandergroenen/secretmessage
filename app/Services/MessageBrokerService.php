@@ -7,13 +7,15 @@ use App\Domain\Events\MessageSentEvent;
 use App\Domain\Events\MessageDecryptedAndReceivedEvent;
 use App\Models\Message;
 use App\Models\User;
+use App\Repositories\Interfaces\MessageRepositoryInterface;
 use Exception;
 
 class MessageBrokerService
 {
     public function __construct(
         protected EncryptionService $encryptionService,
-        protected KeyManagementService $keyManagementService
+        protected KeyManagementService $keyManagementService,
+        protected MessageRepositoryInterface $messageRepository
     ) {}
 
     /**
@@ -23,14 +25,14 @@ class MessageBrokerService
      * @param int $recipientId The ID of the recipient
      * @param string $content The message content (unencrypted)
      * @param string $expiresAt The timestamp when the message expires
-     * @return Message|null The created message or null if failed
+     * @return MessageDto The created message
      */
     public function sendMessage(
         int $senderId,
         int $recipientId,
         string $content,
         string $expiresAt
-    ): ?Message {
+    ): MessageDto {
         // Get the recipient's and its public key
         $recipient = User::findOrFail($recipientId);
         $publicKey = $this->keyManagementService->getUserPublicKey($recipient);
@@ -43,22 +45,17 @@ class MessageBrokerService
         // Encrypt the message content with the recipient's public key
         $encryptedContent = $this->encryptionService->encrypt($content, $publicKey);
 
-        // Create the message
-        $message = Message::create([
+        // Create the message using the repository
+        $messageDto = $this->messageRepository->createMessage([
             'sender_id' => $senderId,
             'recipient_id' => $recipientId,
             'content' => $encryptedContent,
             'expires_at' => $expiresAt,
-        ]);
+        ]); 
 
-        // Create a DTO for the event
-        $messageDto = MessageDto::fromModel($message);
-
-        // Dispatch the MessageSentEvent
-        event(new MessageSentEvent($messageDto));
-
-        return $message;
+        return $messageDto;
     }
+
 
     /**
      * Mark a message as read and handle self-destruction if needed
@@ -68,15 +65,7 @@ class MessageBrokerService
      */
     public function markMessageAsRead(string $identifier): bool
     {
-        $message = Message::where('id', $identifier)->first();
-
-        if (!$message) {
-            return false;
-        }
-
-        $message->markAsRead();
-
-        return true;
+        return $this->messageRepository->markMessageAsRead($identifier);
     }
 
     /**
@@ -88,20 +77,16 @@ class MessageBrokerService
      */
     public function decryptMessage(string $identifier, string $privateKey): MessageDto
     {
-        $message = Message::where('id', $identifier)->firstOrFail();
+        $message = $this->messageRepository->findMessageById($identifier);
+        
+        if (!$message) {
+            throw new Exception('Message not found');
+        }
 
         // Decrypt the message content with the recipient's private key
         $decryptedContent = $this->encryptionService->decrypt($message->content, $privateKey);
 
-        // Create a DTO with the decrypted content
-        return new MessageDto(
-            senderId: $message->sender_id,
-            recipientId: $message->recipient_id,
-            content: $message->isExpired() ? 'This message expired at: ' . $message->expires_at : $decryptedContent,
-            id: $message->id,
-            isRead: $message->read_at ? true : false,
-            readAt: $message->read_at,
-            expiresAt: $message->expires_at
-        );
+        // Create a DTO with the decrypted content using the repository
+        return $this->messageRepository->createMessageDto($identifier, $decryptedContent);
     }
 }

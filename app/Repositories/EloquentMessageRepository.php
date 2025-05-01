@@ -2,31 +2,104 @@
 
 namespace App\Repositories;
 
+use App\Domain\Dto\MessageDto;
+use App\Domain\Events\MessageExpiredEvent;
 use App\Models\Message;
 use App\Repositories\Interfaces\MessageRepositoryInterface;
-use Carbon\Carbon;
 
 class EloquentMessageRepository implements MessageRepositoryInterface
 {
-    public function createMessage(array $data): mixed
+    /**
+     * Create a new message
+     *
+     * @param array $data The message data
+     * @return MessageDto|null The created message DTO or null if failed
+     */
+    public function createMessage(array $data): ?MessageDto
     {
-        return Message::create([
+        $message = Message::create([
             'content' => $data['content'],
             'recipient_id' => $data['recipient_id'],
             'sender_id' => $data['sender_id'],
-            'expiry_type' => $data['expiry_type'],
-            'expiry_time' => $data['expiry_time'] ?? null,
-            // Other fields as needed
+            'expires_at' => $data['expires_at'] ?? null,
         ]);
+        
+        if (!$message) {
+            return null;
+        }
+        
+        return new MessageDto(
+            senderId: $message->sender_id,
+            recipientId: $message->recipient_id,
+            content: $message->content,
+            id: $message->id,
+            isRead: $message->read_at ? true : false,
+            readAt: $message->read_at ? $message->read_at->toIso8601String() : null,
+            expiresAt: $message->expires_at ? $message->expires_at->toIso8601String() : null
+        );
     }
 
-    public function findMessageById(string $id): mixed
+    /**
+     * Find a message by its ID
+     *
+     * @param string $id The message ID
+     * @return MessageDto|null The message DTO or null if not found
+     */
+    public function findMessageById(string $id): ?MessageDto
     {
-        return Message::where('id', $id)
-            ->whereNull('read_at')
-            ->first();
+        $message = Message::where('id', $id)->first();
+        
+        if (!$message) {
+            return null;
+        }
+        
+        return new MessageDto(
+            senderId: $message->sender_id,
+            recipientId: $message->recipient_id,
+            content: $message->content,
+            id: $message->id,
+            isRead: $message->read_at ? true : false,
+            readAt: $message->read_at ? $message->read_at->toIso8601String() : null,
+            expiresAt: $message->expires_at ? $message->expires_at->toIso8601String() : null
+        );
     }
+    
+    /**
+     * Find a message by exact ID where user is the recipient
+     *
+     * @param string $id The message ID
+     * @param int $userId The user ID
+     * @return MessageDto|null The message DTO or null if not found
+     */
+    public function findMessageByExactId(string $id, int $userId): ?MessageDto
+    {
+        $message = Message::where('id', $id)
+            ->where('recipient_id', $userId)
+            ->first();
+            
+        if (!$message) {
+            return null;
+        }
+        
+        return new MessageDto(
+            senderId: $message->sender_id,
+            recipientId: $message->recipient_id,
+            content: $message->content,
+            id: $message->id,
+            isRead: $message->read_at ? true : false,
+            readAt: $message->read_at ? $message->read_at->toIso8601String() : null,
+            expiresAt: $message->expires_at ? $message->expires_at->toIso8601String() : null
+        );
+    }
+    
 
+
+    /**
+     * Mark a message as read
+     *
+     * @param string $id The message ID
+     * @return bool Whether the operation was successful
+     */
     public function markMessageAsRead(string $id): bool
     {
         $message = Message::where('id', $id)->first();
@@ -35,42 +108,82 @@ class EloquentMessageRepository implements MessageRepositoryInterface
             return false;
         }
         
-        $message->read_at = Carbon::now();
-        $message->save();
-        
-        // If message is set to self-destruct after reading
-        if ($message->expiry_type === 'read_once') {
-            $this->scheduleMessageDeletion($message->id);
-        }
+        $message->markAsRead();
         
         return true;
     }
 
+    /**
+     * Delete a message
+     *
+     * @param string $id The message ID
+     * @return bool Whether the operation was successful
+     */
     public function deleteMessage(string $id): bool
     {
         return Message::where('id', $id)->delete();
     }
-
-    public function getUnreadMessagesForUser(int $userId): array
+    
+    /**
+     * Check if a message is expired and schedule it for deletion if needed
+     *
+     * @param string $id The message ID
+     * @return void
+     */
+    public function checkAndHandleExpiredMessage(string $id): void
     {
-        return Message::where('recipient_id', $userId)
-            ->whereNull('read_at')
-            ->where(function ($query) {
-                $query->where('expiry_type', '!=', 'time_based')
-                    ->orWhere(function ($q) {
-                        $q->where('expiry_type', 'time_based')
-                          ->where('expiry_time', '>', Carbon::now());
-                    });
-            })
-            ->get()
-            ->toArray();
+        $message = Message::where('id', $id)->first();
+        
+        if (!$message) {
+            return;
+        }
+        
+        // Check if the message is deleted or expired
+        $isDeleted = $message->deleted_at !== null;
+        $isExpired = $message->isExpired();
+        
+        // If message is expired but not deleted, schedule it for deletion
+        if ($isExpired && !$isDeleted) {
+            $this->scheduleMessageDeletion($message->id);
+        }
+    }
+    
+    /**
+     * Decrypt a message and create a DTO
+     *
+     * @param string $id The message ID
+     * @param string $decryptedContent The decrypted content
+     * @return MessageDto The message DTO
+     */
+    public function createMessageDto(string $id, string $decryptedContent): MessageDto
+    {
+        $message = Message::findOrFail($id);
+        
+        // Check if the message is expired
+        $content = $message->isExpired() 
+            ? 'This message expired at: ' . $message->expires_at 
+            : $decryptedContent;
+        
+        return new MessageDto(
+            senderId: $message->sender_id,
+            recipientId: $message->recipient_id,
+            content: $content,
+            id: $message->id,
+            isRead: $message->read_at ? true : false,
+            readAt: $message->read_at ? $message->read_at->toIso8601String() : null,
+            expiresAt: $message->expires_at ? $message->expires_at->toIso8601String() : null
+        );
     }
 
-    // The generateUniqueIdentifier method is no longer needed as UUIDs are handled by the HasUuids trait
-
-    private function scheduleMessageDeletion(int $messageId): void
+    /**
+     * Schedule a message for deletion
+     *
+     * @param string $messageId The message ID
+     * @return void
+     */
+    private function scheduleMessageDeletion(string $messageId): void
     {
-        // Logic to schedule message deletion
-        // Could dispatch an event or directly schedule a job
+        // Dispatch the MessageExpiredEvent to delete the message
+        event(new MessageExpiredEvent($messageId));
     }
 }

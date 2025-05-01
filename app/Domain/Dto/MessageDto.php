@@ -17,22 +17,6 @@ class MessageDto
     }
 
     /**
-     * Create a MessageDto from a Message model
-     */
-    public static function fromModel($message): self
-    {
-        return new self(
-            senderId: $message->sender_id,
-            recipientId: $message->recipient_id,
-            content: $message->content,
-            id: $message->id,
-            isRead: $message->read_at ? true : false,
-            readAt: $message->read_at ? $message->read_at->toIso8601String() : null,
-            expiresAt: $message->expires_at ? $message->expires_at->toIso8601String() : null
-        );
-    }
-
-    /**
      * Convert the DTO to an array
      */
     public function toArray(): array

@@ -3,9 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Domain\Events\MessageDecryptedAndReceivedEvent;
-use App\Domain\Events\MessageExpiredEvent;
-use App\Models\Message;
 use App\Models\User;
+use App\Repositories\Interfaces\MessageRepositoryInterface;
 use App\Services\KeyManagementService;
 use App\Services\MessageBrokerService;
 use Illuminate\Http\Request;
@@ -16,7 +15,8 @@ class MessageController extends Controller
 {
     public function __construct(
         protected KeyManagementService $keyManagementService,
-        protected MessageBrokerService $messageBrokerService
+        protected MessageBrokerService $messageBrokerService,
+        protected MessageRepositoryInterface $messageRepository
     ) {
     }
 
@@ -76,25 +76,15 @@ class MessageController extends Controller
     }
 
     /**
-     * Get a message by partial ID
+     * Get a message by ID
      */
-    public function getMessage(Request $request, $partialId)
+    public function getMessage(Request $request, $messageId)
     {
-        // Ensure the partial ID is at least 5 characters long
-        if (strlen($partialId) < 5) {
-            return response()->json([
-                'message' => null,
-                'error' => 'Message ID must be at least 5 characters long',
-            ], 400);
-        }
-        
         $user = Auth::user();
         
-        // Find messages where the ID starts with the provided partial ID
-        // and the user is the recipient
-        $message = Message::where('id', 'like', $partialId . '%')
-            ->where('recipient_id', $user->id)
-            ->first();
+        // Find the message with the exact ID provided
+        // and where the user is the recipient
+        $message = $this->messageRepository->findMessageByExactId($messageId, $user->id);
         
         if (!$message) {
             return response()->json([
@@ -103,8 +93,8 @@ class MessageController extends Controller
             ], 404);
         }
         
-        // Load the sender relationship
-        $message->load('sender:id,name,email');
+        // We can't load relationships on DTOs, so we'll need to include sender info in the DTO
+        // or fetch it separately if needed
         
         return response()->json([
             'message' => $message,
@@ -120,9 +110,7 @@ class MessageController extends Controller
         
         // Find the message with the exact ID provided
         // and where the user is the recipient
-        $message = Message::where('id', $messageId)
-            ->where('recipient_id', $user->id)
-            ->first();
+        $message = $this->messageRepository->findMessageByExactId($messageId, $user->id);
         
         if (!$message) {
             return response()->json([
@@ -142,7 +130,7 @@ class MessageController extends Controller
      */
     public function markAsRead(Request $request, $id)
     {
-        $success = $this->messageBrokerService->markMessageAsRead($id);
+        $success = $this->messageRepository->markMessageAsRead($id);
         
         if (!$success) {
             return response()->json([
@@ -165,10 +153,18 @@ class MessageController extends Controller
             'private_key' => 'required|string',
         ]);
 
-        // Get the message to create a DTO and dispatch the event
-        /**@var Message $message */
-        $message = Message::where('id', $validated['id'])->firstOrFail();        
-        $message->deleteIfExpired();
+        // Get the message using the repository
+        $message = $this->messageRepository->findMessageById($validated['id']);
+        
+        if (!$message) {
+            return response()->json([
+                'message' => 'Message not found',
+                'error' => 'No message found with that ID',
+            ], 404);
+        }
+        
+        // Check if the message is expired
+        $this->messageRepository->checkAndHandleExpiredMessage($validated['id']);
 
         // Decrypt the message content
         $messageDto = $this->messageBrokerService->decryptMessage(
@@ -218,11 +214,21 @@ class MessageController extends Controller
             'id' => 'required|string',
         ]);
         
-        // Fire the MessageExpiredEvent
-        event(new MessageExpiredEvent($validated['id']));
+        // Get the message using the repository
+        $message = $this->messageRepository->findMessageById($validated['id']);
+        
+        if (!$message) {
+            return response()->json([
+                'message' => 'Message not found',
+                'error' => 'No message found with that ID',
+            ], 404);
+        }
+        
+        // Check if the message is expired and handle it
+        $this->messageRepository->checkAndHandleExpiredMessage($validated['id']);
         
         return response()->json([
-            'message' => 'Message expiration event triggered successfully',
+            'message' => 'Message expiration handled successfully',
         ]);
     }
 }
