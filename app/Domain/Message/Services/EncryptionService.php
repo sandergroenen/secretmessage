@@ -2,6 +2,8 @@
 namespace App\Domain\Message\Services;
 
 use phpseclib3\Crypt\RSA;
+use phpseclib3\Crypt\RSA\PrivateKey;
+use phpseclib3\Crypt\RSA\PublicKey;
 
 class EncryptionService {
     /**
@@ -13,14 +15,14 @@ class EncryptionService {
      */
     public function encrypt(string $message, string $publicKeyString): string {
         // Load the public key from string
+        /** @var PublicKey $publicKey */
         $publicKey = RSA::load($publicKeyString);
         
         // Encrypt the message
-        /** @disregard P1013  */
-        $ciphertext =  $publicKey->encrypt($message);
+        $ciphertext = $publicKey->encrypt($message);
         
         // Return base64 encoded ciphertext for storage/transmission
-        return base64_encode($ciphertext);
+        return base64_encode((string)$ciphertext);
     }
     
     /**
@@ -32,21 +34,24 @@ class EncryptionService {
      */
     public function decrypt(string $encryptedMessage, string $privateKeyString): string {
         // Load the private key from string
+        /** @var PrivateKey $privateKey */
         $privateKey = RSA::load($privateKeyString);
         
         // Decode the base64 encoded ciphertext
         $ciphertext = base64_decode($encryptedMessage);
         
         // Decrypt the message
-        /** @disregard P1013  */
-        return $privateKey->decrypt($ciphertext);
+        $decrypted = $privateKey->decrypt($ciphertext);
+        
+        // Ensure we always return a string
+        return is_string($decrypted) ? $decrypted : '';
     }
     
     /**
      * Generate a new RSA key pair
      * 
      * @param int $bits The key size in bits
-     * @return array An array containing the private and public keys as strings
+     * @return array<string, string> An array containing the private and public keys as strings
      */
     public function generateKeyPair(int $bits = 2048): array {
         // Create a new private key

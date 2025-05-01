@@ -13,6 +13,7 @@ use App\Models\User;
 
 class Message extends Model
 {
+    /** @uses HasFactory, SoftDeletes, HasUuids */
     use HasFactory, SoftDeletes, HasUuids;
     
     /**
@@ -25,7 +26,6 @@ class Message extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array
      */
     protected $fillable = [
         'content',
@@ -38,7 +38,6 @@ class Message extends Model
     /**
      * The attributes that should be cast.
      *
-     * @var array
      */
     protected $casts = [
         'expires_at' => 'datetime',
@@ -52,23 +51,27 @@ class Message extends Model
      *
      * @return string
      */
-    public function getRouteKeyName()
+    public function getRouteKeyName(): string
     {
         return 'id';
     }
 
     /**
      * Get the sender of the message.
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function sender()
+    public function sender(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'sender_id');
     }
 
     /**
      * Get the recipient of the message.
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function recipient()
+    public function recipient(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'recipient_id');
     }
@@ -108,7 +111,7 @@ class Message extends Model
      */
     public function scheduleForDeletion(): void
     {
-        event(new MessageExpiredEvent($this->id));
+        event(new MessageExpiredEvent((string)$this->id));
     }
 
     /**
@@ -118,7 +121,7 @@ class Message extends Model
      * @param  int  $recipientId
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeForRecipient($query, $recipientId)
+    public function scopeForRecipient($query, int $recipientId): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where('recipient_id', $recipientId);
     }
@@ -129,7 +132,7 @@ class Message extends Model
      * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeActive($query)
+    public function scopeActive($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->where(function ($query) {
             $query->whereNull('expires_at')
@@ -143,7 +146,7 @@ class Message extends Model
      * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeUnread($query)
+    public function scopeUnread($query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->whereNull('read_at');
     }

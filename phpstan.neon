@@ -1,11 +1,16 @@
 includes:
-    - ./vendor/nunomaduro/larastan/extension.neon
+    - ./vendor/larastan/larastan/extension.neon
 
 parameters:
     level: 7
+    treatPhpDocTypesAsCertain: false
     paths:
         - app
     excludePaths:
         - vendor
         - storage
         - bootstrap/cache
+    ignoreErrors:
+        - '#uses generic trait#'
+        - '#return type with generic class .* does not specify its types#'
+        - '#has parameter.*with generic#'

@@ -11,7 +11,7 @@ class EloquentMessageRepository implements MessageRepositoryInterface
     /**
      * Create a new message
      *
-     * @param array $data The message data
+     * @param array<string, mixed> $data The message data
      * @return MessageDto|null The created message DTO or null if failed
      */
     public function createMessage(array $data): ?MessageDto
@@ -28,10 +28,10 @@ class EloquentMessageRepository implements MessageRepositoryInterface
         }
         
         return new MessageDto(
-            senderId: $message->sender_id,
-            recipientId: $message->recipient_id,
+            senderId: (int)$message->sender_id,
+            recipientId: (int)$message->recipient_id,
             content: $message->content,
-            id: $message->id,
+            id: (string)$message->id,
             isRead: $message->read_at ? true : false,
             readAt: $message->read_at ? $message->read_at->toIso8601String() : null,
             expiresAt: $message->expires_at ? $message->expires_at->toIso8601String() : null
@@ -53,10 +53,10 @@ class EloquentMessageRepository implements MessageRepositoryInterface
         }
         
         return new MessageDto(
-            senderId: $message->sender_id,
-            recipientId: $message->recipient_id,
+            senderId: (int)$message->sender_id,
+            recipientId: (int)$message->recipient_id,
             content: $message->content,
-            id: $message->id,
+            id: (string)$message->id,
             isRead: $message->read_at ? true : false,
             readAt: $message->read_at ? $message->read_at->toIso8601String() : null,
             expiresAt: $message->expires_at ? $message->expires_at->toIso8601String() : null
@@ -81,10 +81,10 @@ class EloquentMessageRepository implements MessageRepositoryInterface
         }
         
         return new MessageDto(
-            senderId: $message->sender_id,
-            recipientId: $message->recipient_id,
+            senderId: (int)$message->sender_id,
+            recipientId: (int)$message->recipient_id,
             content: $message->content,
-            id: $message->id,
+            id: (string)$message->id,
             isRead: $message->read_at ? true : false,
             readAt: $message->read_at ? $message->read_at->toIso8601String() : null,
             expiresAt: $message->expires_at ? $message->expires_at->toIso8601String() : null
@@ -157,10 +157,10 @@ class EloquentMessageRepository implements MessageRepositoryInterface
             : $decryptedContent;
         
         return new MessageDto(
-            senderId: $message->sender_id,
-            recipientId: $message->recipient_id,
+            senderId: (int)$message->sender_id,
+            recipientId: (int)$message->recipient_id,
             content: $content,
-            id: $message->id,
+            id: (string)$message->id,
             isRead: $message->read_at ? true : false,
             readAt: $message->read_at ? $message->read_at->toIso8601String() : null,
             expiresAt: $message->expires_at ? $message->expires_at->toIso8601String() : null

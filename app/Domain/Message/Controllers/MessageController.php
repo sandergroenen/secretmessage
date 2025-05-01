@@ -24,7 +24,7 @@ class MessageController extends Controller
     /**
      * Display the messages dashboard
      */
-    public function index()
+    public function index(): \Inertia\Response
     {
         $user = Auth::user();
         $hasKeys = $this->keyManagementService->hasPublicKey($user);
@@ -37,7 +37,7 @@ class MessageController extends Controller
     /**
      * Generate a new key pair for the authenticated user
      */
-    public function generateKeys(Request $request)
+    public function generateKeys(Request $request): \Illuminate\Http\JsonResponse
     {
         $user = Auth::user();
         $keyPair = $this->keyManagementService->generateKeysForUser($user);
@@ -53,7 +53,7 @@ class MessageController extends Controller
     /**
      * Send a new message
      */
-    public function sendMessage(Request $request)
+    public function sendMessage(Request $request): \Illuminate\Http\JsonResponse
     {
         $validated = $request->validate([
             'recipient_id' => 'required|exists:users,id',
@@ -79,7 +79,7 @@ class MessageController extends Controller
     /**
      * Get a message by ID
      */
-    public function getMessage(Request $request, $messageId)
+    public function getMessage(Request $request, string $messageId): \Illuminate\Http\JsonResponse
     {
         $user = Auth::user();
         
@@ -105,7 +105,7 @@ class MessageController extends Controller
     /**
      * Check if a message exists by exact ID and return only the message ID
      */
-    public function checkMessageId(Request $request, $messageId)
+    public function checkMessageId(Request $request, string $messageId): \Illuminate\Http\JsonResponse
     {
         $user = Auth::user();
         
@@ -129,7 +129,7 @@ class MessageController extends Controller
     /**
      * Mark a message as read
      */
-    public function markAsRead(Request $request, $id)
+    public function markAsRead(Request $request, string $id): \Illuminate\Http\JsonResponse
     {
         $success = $this->messageRepository->markMessageAsRead($id);
         
@@ -147,7 +147,7 @@ class MessageController extends Controller
     /**
      * Decrypt a message
      */
-    public function decryptMessage(Request $request)
+    public function decryptMessage(Request $request): \Illuminate\Http\JsonResponse
     {
         $validated = $request->validate([
             'id' => 'required|string',
@@ -185,7 +185,7 @@ class MessageController extends Controller
     /**
      * Get a list of users (for recipient selection)
      */
-    public function getLoggedInUserId()
+    public function getLoggedInUserId(): \Illuminate\Http\JsonResponse
     {
         $currentUser = Auth::user();
         
@@ -197,7 +197,7 @@ class MessageController extends Controller
     /**
      * Get a list of users (for recipient selection)
      */
-    public function getUsers()
+    public function getUsers(): \Illuminate\Http\JsonResponse
     {
         $users = User::where('id', '!=', Auth::user()->id)->get(['id', 'name', 'email']);
         
@@ -209,7 +209,7 @@ class MessageController extends Controller
     /**
      * Handle a message that has expired in the frontend
      */
-    public function handleExpiredMessage(Request $request)
+    public function handleExpiredMessage(Request $request): \Illuminate\Http\JsonResponse
     {
         $validated = $request->validate([
             'id' => 'required|string',

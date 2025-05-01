@@ -9,7 +9,7 @@ interface MessageRepositoryInterface
     /**
      * Create a new message
      *
-     * @param array $data The message data
+     * @param array<string, mixed> $data The message data
      * @return MessageDto|null The created message or null if failed
      */
     public function createMessage(array $data): ?MessageDto;

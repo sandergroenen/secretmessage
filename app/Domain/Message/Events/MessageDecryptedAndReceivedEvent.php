@@ -54,17 +54,15 @@ class MessageDecryptedAndReceivedEvent implements ShouldBroadcast, MessageEventW
     /**
      * Get the data to broadcast.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function broadcastWith(): array
     {
         // Format the expiration date to include timezone information
         $expiresAt = $this->message->expiresAt;
         if ($expiresAt) {
-            // Convert to Carbon instance if it's not already
-            if (!$expiresAt instanceof \Carbon\Carbon) {
-                $expiresAt = \Carbon\Carbon::parse($expiresAt);
-            }
+            // Always parse as string to ensure consistent handling
+            $expiresAt = \Carbon\Carbon::parse($expiresAt);
             // Format with timezone information
             $expiresAt = $expiresAt->toIso8601String();
         }

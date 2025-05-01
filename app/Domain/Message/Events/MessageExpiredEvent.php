@@ -23,6 +23,11 @@ class MessageExpiredEvent implements MessageEventWithBroadCastInterface
     }
 
     
+    /**
+     * Get the data to broadcast.
+     * 
+     * @return array<string, string>
+     */
     public function broadcastWith(): array
     {
         return [

@@ -6,12 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\User;
 
+
 class UserKey extends Model
 {
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
      */
     protected $fillable = [
         'user_id',
@@ -21,6 +21,8 @@ class UserKey extends Model
 
     /**
      * Get the user that owns the key.
+     * 
+     * @return BelongsTo
      */
     public function user(): BelongsTo
     {

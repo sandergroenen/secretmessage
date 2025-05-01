@@ -18,7 +18,7 @@ class KeyManagementService
      * Generate and store a new key pair for a user
      * 
      * @param User $user The user to generate keys for
-     * @return array The generated key pair with private key for display
+     * @return array<string, string> The generated key pair with private key for display
      */
     public function generateKeysForUser(User $user): array
     {

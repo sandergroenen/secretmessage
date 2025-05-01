@@ -77,10 +77,6 @@ docker compose exec -T app php artisan db:seed --force
 echo "Installing npm dependencies..."
 docker compose exec -T app npm install
 
-# Install npm dependencies
-# echo "Starting reverb server in the background..."
-# docker compose exec -T app bash -c "cd /var/www && php artisan reverb:start --debug &"
-
 # Start queue worker in the background
 echo "Starting queue worker in the background..."
 docker compose exec -T app bash -c 'XDEBUG_CONFIG="idekey=VSCODE"   && cd /var/www && php artisan queue:work --tries=3 --timeout=90 &'

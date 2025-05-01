@@ -18,6 +18,7 @@ class MessageDto
 
     /**
      * Convert the DTO to an array
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {
