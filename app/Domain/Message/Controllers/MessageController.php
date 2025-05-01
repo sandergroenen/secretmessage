@@ -77,32 +77,6 @@ class MessageController extends Controller
     }
 
     /**
-     * Get a message by ID
-     */
-    public function getMessage(Request $request, string $messageId): \Illuminate\Http\JsonResponse
-    {
-        $user = Auth::user();
-        
-        // Find the message with the exact ID provided
-        // and where the user is the recipient
-        $message = $this->messageRepository->findMessageByExactId($messageId, $user->id);
-        
-        if (!$message) {
-            return response()->json([
-                'message' => null,
-                'error' => 'No message found with that ID',
-            ], 404);
-        }
-        
-        // We can't load relationships on DTOs, so we'll need to include sender info in the DTO
-        // or fetch it separately if needed
-        
-        return response()->json([
-            'message' => $message,
-        ]);
-    }
-
-    /**
      * Check if a message exists by exact ID and return only the message ID
      */
     public function checkMessageId(Request $request, string $messageId): \Illuminate\Http\JsonResponse
@@ -165,7 +139,7 @@ class MessageController extends Controller
         }
         
         // Check if the message is expired
-        $this->messageRepository->checkAndHandleExpiredMessage($validated['id']);
+        $this->messageRepository->deleteMessageIfExpired($validated['id']);
 
         // Decrypt the message content
         $messageDto = $this->messageBrokerService->decryptMessage(
@@ -226,7 +200,7 @@ class MessageController extends Controller
         }
         
         // Check if the message is expired and handle it
-        $this->messageRepository->checkAndHandleExpiredMessage($validated['id']);
+        $this->messageRepository->deleteMessageIfExpired($validated['id']);
         
         return response()->json([
             'message' => 'Message expiration handled successfully',

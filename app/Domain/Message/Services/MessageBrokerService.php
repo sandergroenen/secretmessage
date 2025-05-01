@@ -4,8 +4,6 @@ namespace App\Domain\Message\Services;
 
 use App\Domain\Message\Dto\MessageDto;
 // This event doesn't seem to exist yet
-use App\Domain\Message\Events\MessageDecryptedAndReceivedEvent;
-use App\Domain\Message\Models\Message;
 use App\Models\User;
 use App\Domain\Message\Repositories\Interfaces\MessageRepositoryInterface;
 use Exception;

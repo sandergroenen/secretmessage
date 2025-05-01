@@ -53,7 +53,7 @@ interface MessageRepositoryInterface
      * @param string $id The message ID
      * @return void
      */
-    public function checkAndHandleExpiredMessage(string $id): void;
+    public function deleteMessageIfExpired(string $id): void;
     
     /**
      * Decrypt a message and create a DTO

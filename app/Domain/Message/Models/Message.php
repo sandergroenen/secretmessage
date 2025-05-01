@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Carbon\Carbon;
 use App\Domain\Message\Events\MessageExpiredEvent;
-use App\Domain\Message\Dto\MessageDto;
 use App\Models\User;
 
 class Message extends Model

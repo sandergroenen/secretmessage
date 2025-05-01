@@ -7,6 +7,7 @@ A secure messaging application that uses asymmetric RSA encryption to ensure tha
 ### Prerequisites
 
 - Docker (18.06+)
+- 
 
 The project is set up to use Docker for all dependencies, so you don't need to install PHP, Composer, Node.js, or MySQL directly on your system.
 
@@ -123,7 +124,7 @@ The `MessageDto` class serves as a data structure independent of the underlying 
 - Consistent data structure throughout the application
 - Easy addition of new data sources in the future
 
-#### Real-time Updates with Laravel Reverb
+#### Real-time Updates with Laravel Reverb WebSockets
 
 The application uses Laravel Reverb for WebSockets communication:
 
@@ -139,13 +140,10 @@ The application uses Laravel's event system for handling message lifecycle event
 - **MessageExpiredEvent**: Triggered when a message expires
 - **ExpiredMessageListener**: Handles message expiration by deleting the message
 
-## Security Considerations
-
-- The message ID must be shared outside the system for maximum security
-- Private keys should be stored securely by users
-- Messages are automatically deleted after expiration
-- All communication between client and server is encrypted using HTTPS
-
+## running Static analysis and Tests
+- To run phpstan use the following command on your host: docker compose exec -u appuser bash -c 'cd /var/www && vendor/bin/phpstan --memory-limit=2G'
+- To run tests use the following command on your host: docker compose exec -u appuser bash -c 'XDEBUG_MODE=off cd /var/www && php artisan test'. The XDEBUG_MODE=off prevents xdebug connection error's in the cli.
+- The tests are also run on Github actions for CI/CD purposes. for setup see .github/workflows/tests.yml
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.

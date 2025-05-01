@@ -129,7 +129,7 @@ class EloquentMessageRepository implements MessageRepositoryInterface
      * @param string $id The message ID
      * @return void
      */
-    public function checkAndHandleExpiredMessage(string $id): void
+    public function deleteMessageIfExpired(string $id): void
     {
         $message = Message::where('id', $id)->first();
         
