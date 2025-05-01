@@ -18,7 +18,7 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
         
-      - name: Create .env file
+      - name: Create .env file and append dynamic values
         run: |
           cp .env.example .env
           echo "APP_KEY=base64:$(openssl rand -base64 32)" >> .env
