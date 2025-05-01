@@ -20,7 +20,7 @@ git clone https://github.com/sandergroenen/secretmessage.git
 The application can be started with a single command using the start-local script (compatible with Linux and macOS only):
 
 ```bash
-./start-local.sh
+/path/to/secretmessage/scripts/start-local.sh
 ```
 
 This script will:
