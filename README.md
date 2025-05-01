@@ -1,18 +1,21 @@
 # Secret Message
 
-A secure messaging application that uses asymmetric RSA encryption to ensure that messages can only be read by the intended recipient. Messages automatically expire after a set time and are securely deleted from the system.
+A secure messaging application that uses asymmetric RSA encryption and private channel websockets to ensure that messages can only be read by the intended recipient. Messages automatically expire after a set time and are securely deleted from the system.
 
 ## Getting Started
 
 ### Prerequisites
 
-- Docker (18.06+)
-- 
+- Docker 20.10.13+ or Docker Desktop 3.4.0+ (Docker with docker compose v2 integrated)
+- Git
 
 The project is set up to use Docker for all dependencies, so you don't need to install PHP, Composer, Node.js, or MySQL directly on your system.
 
 ### Installation and Setup
 
+```bash 
+git clone https://github.com/sandergroenen/secretmessage.git
+```
 The application can be started with a single command using the start-local script (compatible with Linux and macOS only):
 
 ```bash
@@ -25,7 +28,7 @@ This script will:
 3. Install JavaScript dependencies via npm
 4. Set up the database and run migrations
 5. Seed the database with default users
-6. Start the Vite server, Reverb WebSocket server, and queue workers
+6. Start the Vite server (asset building), Reverb WebSocket server, and queue workers (Events driver)
 
 Once the script completes, you can access the application at [http://localhost](http://localhost).
 
@@ -64,7 +67,7 @@ To send a message:
 4. Set an expiration time
 5. Click "Send Message"
 
-The message will be encrypted with the recipient's public key before being stored in the database.
+The message will be encrypted with the recipient's public key before being stored in the database. And the message ID will be printed, *COPY this for userB (see step 1 in receiving messages)*
 
 ### Receiving Messages
 
@@ -89,7 +92,7 @@ To read a message sent to you:
 
 - **Asymmetric RSA Encryption**: Uses phpseclib3 to implement RSA public/private key encryption
 - **Message Expiration**: Messages are automatically deleted after their expiration time
-- **Soft Deletes**: Messages are soft-deleted first, then permanently removed by a scheduled job
+- **Private Channel WebSockets**: Channels were decrypted messages are broadcasted are secured by authorization callback authenticating the logged in user as being the recipient
 - **No Stored Decryption Keys**: Private keys are never stored on the server
 
 ### Key Components
@@ -140,10 +143,17 @@ The application uses Laravel's event system for handling message lifecycle event
 - **MessageExpiredEvent**: Triggered when a message expires
 - **ExpiredMessageListener**: Handles message expiration by deleting the message
 
-## running Static analysis and Tests
-- To run phpstan use the following command on your host: docker compose exec -u appuser bash -c 'cd /var/www && vendor/bin/phpstan --memory-limit=2G'
-- To run tests use the following command on your host: docker compose exec -u appuser bash -c 'XDEBUG_MODE=off cd /var/www && php artisan test'. The XDEBUG_MODE=off prevents xdebug connection error's in the cli.
-- The tests are also run on Github actions for CI/CD purposes. for setup see .github/workflows/tests.yml
+## Running Static analysis and Tests
+- To run phpstan use the following command on your host:  
+```bash
+docker compose exec -u appuser app bash -c 'XDEBUG_MODE=off cd /var/www && vendor/bin/phpstan --memory-limit=2G'
+```
+- To run tests use the following command on your host: 
+```bash
+docker compose exec -u appuser app bash -c 'XDEBUG_MODE=off cd /var/www && php artisan test'
+```
+The XDEBUG_MODE=off prevents xdebug connection error's in the cli.
+- The tests are also run on Github actions for CI/CD purposes. for setup see .github/workflows/tests.yml and for runs see  https://github.com/sandergroenen/secretmessage/actions
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License
