@@ -4,7 +4,6 @@ namespace App\Domain\Message\Events;
 
 use App\Domain\Message\Events\Interfaces\MessageEventWithBroadCastInterface;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
