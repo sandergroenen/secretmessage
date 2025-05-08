@@ -14,7 +14,9 @@ class KeyManagementServiceTest extends TestCase
 {
     use DatabaseTransactions;
 
+    /** @var KeyManagementService&Mockery\MockInterface|Mockery\PartialMock */
     private KeyManagementService $keyManagementService;
+    /** @var EncryptionService&Mockery\MockInterface|Mockery\PartialMock */
     private EncryptionService $encryptionService;
 
     protected function setUp(): void

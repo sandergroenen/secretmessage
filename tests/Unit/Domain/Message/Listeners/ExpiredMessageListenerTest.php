@@ -13,6 +13,7 @@ use Mockery;
 class ExpiredMessageListenerTest extends TestCase
 {
     private ExpiredMessageListener $listener;
+    /** @var MessageRepositoryInterface&Mockery\MockInterface|Mockery\PartialMock */
     private MessageRepositoryInterface $messageRepository;
 
     protected function setUp(): void

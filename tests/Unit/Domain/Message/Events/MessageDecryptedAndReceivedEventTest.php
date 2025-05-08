@@ -5,7 +5,6 @@ namespace Tests\Unit\Domain\Message\Events;
 use App\Domain\Message\Dto\MessageDto;
 use App\Domain\Message\Events\MessageDecryptedAndReceivedEvent;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 class MessageDecryptedAndReceivedEventTest extends TestCase

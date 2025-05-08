@@ -19,8 +19,11 @@ class MessageBrokerServiceTest extends TestCase
     use DatabaseTransactions;
 
     private MessageBrokerService $messageBrokerService;
+    /** @var MessageRepositoryInterface&Mockery\MockInterface|Mockery\PartialMock */
     private MessageRepositoryInterface $messageRepository;
+    /** @var KeyManagementService&Mockery\MockInterface|Mockery\PartialMock */
     private KeyManagementService $keyManagementService;
+    /** @var EncryptionService&Mockery\MockInterface|Mockery\PartialMock */
     private EncryptionService $encryptionService;
 
     protected function setUp(): void
@@ -31,7 +34,6 @@ class MessageBrokerServiceTest extends TestCase
         $this->messageRepository = Mockery::mock(MessageRepositoryInterface::class);
         $this->keyManagementService = Mockery::mock(KeyManagementService::class);
         $this->encryptionService = Mockery::mock(EncryptionService::class);
-        
         // Create the service with mocks
         $this->messageBrokerService = new MessageBrokerService(
             $this->encryptionService,
