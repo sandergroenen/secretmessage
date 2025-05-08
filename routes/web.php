@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
-//test
+
+//skip front page go to login
 Route::get('/', function () {
     return redirect("/login");
 })->name('home');

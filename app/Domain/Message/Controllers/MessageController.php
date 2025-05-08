@@ -150,10 +150,7 @@ class MessageController extends Controller
         // Dispatch the event
         event(new MessageDecryptedAndReceivedEvent($messageDto));
         
-        return response()->json([
-            'message' => 'Message decrypted successfully',
-            'content' => $messageDto->content,
-        ]);
+        return response()->json(['success' => true]);
     }
 
     /**
